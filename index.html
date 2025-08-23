@@ -46,9 +46,51 @@
       cursor: pointer;
       font-weight: bold;
     }
+    /* --- Bandeau prof --- */
+    .prof-banner {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 20px;
+      margin-bottom: 30px;
+      padding: 15px;
+      background: white;
+      border-radius: 12px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+      max-width: 600px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+    .prof-banner img {
+      width: 100px;
+      height: 100px;
+      border-radius: 50%;
+      object-fit: cover;
+      border: 3px solid #007bff;
+    }
+    .prof-banner h2 {
+      margin: 0;
+      font-size: 20px;
+      color: #333;
+    }
+    .prof-banner p {
+      margin: 4px 0 0;
+      font-size: 14px;
+      color: #666;
+      font-style: italic;
+    }
   </style>
 </head>
 <body>
+
+  <!-- Bandeau Prof -->
+  <div class="prof-banner">
+    <img src="d5be8b3b-d8e5-42d0-9a6a-1ca2a56cdd73.png" alt="Photo Prof">
+    <div>
+      <h2>Marçio VALIZELOS DA EIRA</h2>
+      <p>✨ Meilleur prof d'EPS du monde ✨</p>
+    </div>
+  </div>
 
   <h1>Suivi Tenue de Sport</h1>
 
@@ -141,7 +183,7 @@
       function calculerMalus(tr, nom) {
         let malus = 0.0;
         const selects = tr.querySelectorAll("select");
-        selects.forEach((sel, index) => {
+        selects.forEach((sel) => {
           if (sel.value === "non") {
             malus += 0.1;
           }
