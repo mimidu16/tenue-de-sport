@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <title>Suivi Tenue de Sport</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f8f9fa;
+      padding: 20px;
+    }
+    h1 {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+    table {
+      border-collapse: collapse;
+      margin: auto;
+      background: white;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+    }
+    th, td {
+      border: 1px solid #ccc;
+      padding: 6px;
+      text-align: center;
+    }
+    th {
+      background: #007bff;
+      color: white;
+    }
+    select {
+      padding: 3px;
+    }
+    .malus {
+      font-weight: bold;
+      color: #dc3545;
+    }
+    .reset-btn {
+      display: block;
+      margin: 20px auto;
+      padding: 10px 20px;
+      background: #dc3545;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      font-weight: bold;
+    }
+  </style>
+</head>
+<body>
+
+  <h1>Suivi Tenue de Sport</h1>
+
+  <table id="table-eleves">
+    <thead>
+      <tr id="header-row">
+        <th>Élève</th>
+        <th>Malus cumulé</th>
+      </tr>
+    </thead>
+    <tbody></tbody>
+  </table>
+
+  <button class="reset-btn" id="reset">🔄 Réinitialiser tout</button>
+
+  <script>
+    document.addEventListener("DOMContentLoaded", () => {
+      const nbSeances = 16; // nombre de séances
+      const eleves = ["Alice", "Bob", "Charlie", "Diana"];
+      const storageKey = "tenue-sport-data";
+
+      // Charger données sauvegardées si elles existent
+      let savedData = JSON.parse(localStorage.getItem(storageKey)) || {};
+
+      const tableBody = document.getElementById("table-eleves").querySelector("tbody");
+      const headerRow = document.getElementById("header-row");
+
+      // Ajouter les colonnes séances dans l'en-tête
+      for (let i = 1; i <= nbSeances; i++) {
+        const th = document.createElement("th");
+        th.textContent = "Séance " + i;
+        headerRow.insertBefore(th, headerRow.lastElementChild);
+      }
+
+      // Créer les lignes élèves
+      eleves.forEach(nom => {
+        const tr = document.createElement("tr");
+
+        // Nom élève
+        const tdNom = document.createElement("td");
+        tdNom.textContent = nom;
+        tr.appendChild(tdNom);
+
+        // Colonnes séances (cases oui/non)
+        for (let i = 1; i <= nbSeances; i++) {
+          const td = document.createElement("td");
+          const select = document.createElement("select");
+
+          const optionOui = document.createElement("option");
+          optionOui.value = "oui";
+          optionOui.textContent = "Oui";
+
+          const optionNon = document.createElement("option");
+          optionNon.value = "non";
+          optionNon.textContent = "Non";
+
+          select.appendChild(optionOui);
+          select.appendChild(optionNon);
+
+          // Restaurer la valeur sauvegardée si elle existe
+          if (savedData[nom] && savedData[nom][i]) {
+            select.value = savedData[nom][i];
+          }
+
+          // Quand on change une valeur, sauvegarder et recalculer le malus
+          select.addEventListener("change", () => {
+            if (!savedData[nom]) savedData[nom] = {};
+            savedData[nom][i] = select.value;
+            localStorage.setItem(storageKey, JSON.stringify(savedData));
+            calculerMalus(tr, nom);
+          });
+
+          td.appendChild(select);
+          tr.appendChild(td);
+        }
+
+        // Colonne malus
+        const tdMalus = document.createElement("td");
+        tdMalus.className = "malus";
+        tdMalus.textContent = "-0.0";
+        tr.appendChild(tdMalus);
+
+        tableBody.appendChild(tr);
+
+        // Calcul initial
+        calculerMalus(tr, nom);
+      });
+
+      // Fonction calcul du malus pour une ligne
+      function calculerMalus(tr, nom) {
+        let malus = 0.0;
+        const selects = tr.querySelectorAll("select");
+        selects.forEach((sel, index) => {
+          if (sel.value === "non") {
+            malus += 0.1;
+          }
+        });
+        const tdMalus = tr.querySelector(".malus");
+        tdMalus.textContent = "-" + malus.toFixed(1);
+      }
+
+      // Réinitialiser tout
+      document.getElementById("reset").addEventListener("click", () => {
+        if (confirm("Voulez-vous vraiment tout réinitialiser ?")) {
+          localStorage.removeItem(storageKey);
+          location.reload();
+        }
+      });
+    });
+  </script>
+
+</body>
+</html>
