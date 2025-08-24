@@ -376,16 +376,16 @@
 
       loadData();
 
+      // ✅ Reset qui vide aussi le localStorage
       window.resetAll = function() {
         tbodyTenue.querySelectorAll("select").forEach(sel => sel.value = "oui");
         tbodyAtt.querySelectorAll("select").forEach(sel => sel.value = "neutre");
         tbodyTenue.querySelectorAll("tr").forEach(tr => calculerTenue(tr));
         tbodyAtt.querySelectorAll("tr").forEach(tr => calculerAttitude(tr));
         calculerRecap();
-        saveData();
+        localStorage.removeItem("epsData");
       }
     });
   </script>
 </body>
 </html>
-
