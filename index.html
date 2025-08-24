@@ -2,27 +2,53 @@
 <html lang="fr">
 <head>
   <meta charset="UTF-8">
-  <title>Suivi Tenue de Sport</title>
+  <title>Suivi EPS</title>
   <style>
     body {
       font-family: Arial, sans-serif;
       background: #f8f9fa;
       padding: 20px;
     }
-    h1 {
+    h1, h2 {
       text-align: center;
       margin-bottom: 20px;
+    }
+    .header-prof {
+      text-align: center;
+      margin-bottom: 30px;
+    }
+    .header-prof img {
+      width: 120px;
+      border-radius: 50%;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.3);
+    }
+    .header-prof h1 {
+      margin: 10px 0 0;
+      font-size: 20px;
+      color: #333;
+    }
+    .header-prof p {
+      margin: 5px 0 0;
+      font-size: 16px;
+      font-weight: bold;
+      color: #007bff;
     }
     table {
       border-collapse: collapse;
       margin: auto;
+      margin-bottom: 30px;
       background: white;
       box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+      width: 95%;
+      table-layout: fixed;
     }
     th, td {
       border: 1px solid #ccc;
       padding: 6px;
       text-align: center;
+    }
+    th:first-child, td:first-child {
+      width: 150px;
     }
     th {
       background: #007bff;
@@ -30,178 +56,335 @@
     }
     select {
       padding: 3px;
+      width: 100%;
     }
-    .malus {
+    .totalTenue, .totalAttitude, .totalFinal {
       font-weight: bold;
-      color: #dc3545;
     }
-    .reset-btn {
+    .btn-reset {
       display: block;
-      margin: 20px auto;
+      margin: auto;
+      margin-top: 15px;
       padding: 10px 20px;
       background: #dc3545;
       color: white;
       border: none;
       border-radius: 6px;
       cursor: pointer;
+      font-size: 15px;
       font-weight: bold;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.3);
     }
-    /* --- Bandeau prof --- */
-    .prof-banner {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 20px;
-      margin-bottom: 30px;
-      padding: 15px;
-      background: linear-gradient(135deg, #007bff, #00c4ff);
-      border-radius: 12px;
-      box-shadow: 0 2px 6px rgba(0,0,0,0.2);
-      max-width: 700px;
-      margin-left: auto;
-      margin-right: auto;
-      color: white;
-    }
-    .prof-banner img {
-      width: 100px;
-      height: 100px;
-      border-radius: 50%;
-      object-fit: cover;
-      border: 3px solid white;
-      background: white;
-    }
-    .prof-banner h2 {
-      margin: 0;
-      font-size: 22px;
-    }
-    .prof-banner p {
-      margin: 4px 0 0;
-      font-size: 14px;
-      font-style: italic;
+    .btn-reset:hover {
+      background: #c82333;
     }
   </style>
 </head>
 <body>
 
-  <!-- Bandeau Prof -->
-  <div class="prof-banner">
-    <img src="https://i.postimg.cc/pVsxvfqM/Design-sans-titre-2025-08-23-T215229-216.png" alt="Photo Prof">
-    <div>
-      <h2>Marçio VALIZELOS DA EIRA</h2>
-      <p>✨ Meilleur prof d'EPS du monde ✨</p>
-    </div>
+  <!-- ✅ Partie Meilleur Prof -->
+  <div class="header-prof">
+    <img src="https://i.postimg.cc/pVsxvfqM/Design-sans-titre-2025-08-23-T215229-216.png" alt="Prof EPS">
+    <h1>Marçio VALIZELOS DA EIRA</h1>
+    <p>🏋️ Meilleur prof d'EPS du monde 🤾</p>
   </div>
 
-  <h1>Suivi Tenue de Sport</h1>
+  <h2>Suivi Tenue de Sport</h2>
 
-  <table id="table-eleves">
+  <table id="table-tenue">
     <thead>
-      <tr id="header-row">
+      <tr id="header-tenue">
         <th>Élève</th>
-        <th>Malus cumulé</th>
+        <th>Total</th>
       </tr>
     </thead>
     <tbody></tbody>
   </table>
 
-  <button class="reset-btn" id="reset">🔄 Réinitialiser tout</button>
+  <h2>Suivi Attitude</h2>
+
+  <table id="table-attitude">
+    <thead>
+      <tr id="header-attitude">
+        <th>Élève</th>
+        <th>Total</th>
+      </tr>
+    </thead>
+    <tbody></tbody>
+  </table>
+
+  <h2>Récapitulatif Général</h2>
+
+  <table id="table-recap">
+    <thead>
+      <tr>
+        <th>Élève</th>
+        <th>Total Tenue</th>
+        <th>Total Attitude</th>
+        <th>Somme Finale</th>
+      </tr>
+    </thead>
+    <tbody></tbody>
+  </table>
+
+  <button class="btn-reset" onclick="resetAll()">🔄 Réinitialiser tout</button>
 
   <script>
     document.addEventListener("DOMContentLoaded", () => {
-      const nbSeances = 16; // nombre de séances
+      const nbSeances = 12;
       const eleves = ["Alice", "Bob", "Charlie", "Diana"];
-      const storageKey = "tenue-sport-data";
 
-      // Charger données sauvegardées si elles existent
-      let savedData = JSON.parse(localStorage.getItem(storageKey)) || {};
+      // --- TABLEAU TENUE ---
+      const headerTenue = document.getElementById("header-tenue");
+      const tbodyTenue = document.querySelector("#table-tenue tbody");
 
-      const tableBody = document.getElementById("table-eleves").querySelector("tbody");
-      const headerRow = document.getElementById("header-row");
-
-      // Ajouter les colonnes séances dans l'en-tête
       for (let i = 1; i <= nbSeances; i++) {
         const th = document.createElement("th");
         th.textContent = "Séance " + i;
-        headerRow.insertBefore(th, headerRow.lastElementChild);
+        headerTenue.insertBefore(th, headerTenue.lastElementChild);
       }
 
-      // Créer les lignes élèves
       eleves.forEach(nom => {
         const tr = document.createElement("tr");
-
-        // Nom élève
         const tdNom = document.createElement("td");
         tdNom.textContent = nom;
         tr.appendChild(tdNom);
 
-        // Colonnes séances (cases oui/non)
         for (let i = 1; i <= nbSeances; i++) {
           const td = document.createElement("td");
           const select = document.createElement("select");
 
-          const optionOui = document.createElement("option");
-          optionOui.value = "oui";
-          optionOui.textContent = "Oui";
+          ["Oui", "Non"].forEach(val => {
+            const option = document.createElement("option");
+            option.value = val.toLowerCase();
+            option.textContent = val;
+            select.appendChild(option);
+          });
 
-          const optionNon = document.createElement("option");
-          optionNon.value = "non";
-          optionNon.textContent = "Non";
-
-          select.appendChild(optionOui);
-          select.appendChild(optionNon);
-
-          // Restaurer la valeur sauvegardée si elle existe
-          if (savedData[nom] && savedData[nom][i]) {
-            select.value = savedData[nom][i];
-          }
-
-          // Quand on change une valeur, sauvegarder et recalculer le malus
           select.addEventListener("change", () => {
-            if (!savedData[nom]) savedData[nom] = {};
-            savedData[nom][i] = select.value;
-            localStorage.setItem(storageKey, JSON.stringify(savedData));
-            calculerMalus(tr, nom);
+            calculerTenue(tr);
+            calculerRecap();
+            saveData();
           });
 
           td.appendChild(select);
           tr.appendChild(td);
         }
 
-        // Colonne malus
-        const tdMalus = document.createElement("td");
-        tdMalus.className = "malus";
-        tdMalus.textContent = "-0.0";
-        tr.appendChild(tdMalus);
+        const tdTotal = document.createElement("td");
+        tdTotal.className = "totalTenue";
+        tdTotal.textContent = "0.0";
+        tr.appendChild(tdTotal);
 
-        tableBody.appendChild(tr);
-
-        // Calcul initial
-        calculerMalus(tr, nom);
+        tbodyTenue.appendChild(tr);
       });
 
-      // Fonction calcul du malus pour une ligne
-      function calculerMalus(tr, nom) {
+      function calculerTenue(tr) {
         let malus = 0.0;
-        const selects = tr.querySelectorAll("select");
-        selects.forEach((sel) => {
+        tr.querySelectorAll("select").forEach(sel => {
           if (sel.value === "non") {
             malus += 0.1;
+            sel.parentElement.style.backgroundColor = "#f8d7da";
+          } else {
+            sel.parentElement.style.backgroundColor = "white";
           }
         });
-        const tdMalus = tr.querySelector(".malus");
-        tdMalus.textContent = "-" + malus.toFixed(1);
+
+        const tdTotal = tr.querySelector(".totalTenue");
+        tdTotal.textContent = malus > 0 ? "-" + malus.toFixed(1) : "0.0";
+
+        if (malus > 0) {
+          tdTotal.style.color = "#dc3545"; // rouge si malus
+        } else {
+          tdTotal.style.color = "black"; // noir si 0
+        }
       }
 
-      // Réinitialiser tout
-      document.getElementById("reset").addEventListener("click", () => {
-        if (confirm("Voulez-vous vraiment tout réinitialiser ?")) {
-          localStorage.removeItem(storageKey);
-          location.reload();
+      // --- TABLEAU ATTITUDE ---
+      const headerAtt = document.getElementById("header-attitude");
+      const tbodyAtt = document.querySelector("#table-attitude tbody");
+
+      for (let i = 1; i <= nbSeances; i++) {
+        const th = document.createElement("th");
+        th.textContent = "Séance " + i;
+        headerAtt.insertBefore(th, headerAtt.lastElementChild);
+      }
+
+      eleves.forEach(nom => {
+        const tr = document.createElement("tr");
+        const tdNom = document.createElement("td");
+        tdNom.textContent = nom;
+        tr.appendChild(tdNom);
+
+        for (let i = 1; i <= nbSeances; i++) {
+          const td = document.createElement("td");
+          const select = document.createElement("select");
+
+          const options = [
+            {val: "neutre", txt: "Neutre"},
+            {val: "bonne", txt: "Bonne"},
+            {val: "mauvaise", txt: "Mauvaise"}
+          ];
+
+          options.forEach(o => {
+            const opt = document.createElement("option");
+            opt.value = o.val;
+            opt.textContent = o.txt;
+            select.appendChild(opt);
+          });
+
+          select.addEventListener("change", () => {
+            calculerAttitude(tr);
+            calculerRecap();
+            saveData();
+          });
+
+          td.appendChild(select);
+          tr.appendChild(td);
         }
+
+        const tdTotal = document.createElement("td");
+        tdTotal.className = "totalAttitude";
+        tdTotal.textContent = "0.0";
+        tr.appendChild(tdTotal);
+
+        tbodyAtt.appendChild(tr);
       });
+
+      function calculerAttitude(tr) {
+        let score = 0.0;
+        tr.querySelectorAll("select").forEach(sel => {
+          if (sel.value === "bonne") {
+            score += 0.1;
+            sel.parentElement.style.backgroundColor = "#d4edda";
+          } else if (sel.value === "mauvaise") {
+            score -= 0.1;
+            sel.parentElement.style.backgroundColor = "#f8d7da";
+          } else {
+            sel.parentElement.style.backgroundColor = "white";
+          }
+        });
+
+        const tdTotal = tr.querySelector(".totalAttitude");
+        if (score > 0) {
+          tdTotal.textContent = "+" + score.toFixed(1);
+          tdTotal.style.color = "#28a745"; // vert
+        } else if (score < 0) {
+          tdTotal.textContent = score.toFixed(1); // négatif déjà avec "-"
+          tdTotal.style.color = "#dc3545"; // rouge
+        } else {
+          tdTotal.textContent = "0.0";
+          tdTotal.style.color = "black";
+        }
+      }
+
+      // --- TABLEAU RECAP ---
+      const tbodyRecap = document.querySelector("#table-recap tbody");
+
+      eleves.forEach(nom => {
+        const tr = document.createElement("tr");
+        const tdNom = document.createElement("td");
+        tdNom.textContent = nom;
+        tr.appendChild(tdNom);
+
+        const tdTenue = document.createElement("td");
+        tdTenue.className = "recapTenue";
+        tr.appendChild(tdTenue);
+
+        const tdAtt = document.createElement("td");
+        tdAtt.className = "recapAttitude";
+        tr.appendChild(tdAtt);
+
+        const tdFinal = document.createElement("td");
+        tdFinal.className = "totalFinal";
+        tr.appendChild(tdFinal);
+
+        tbodyRecap.appendChild(tr);
+      });
+
+      function calculerRecap() {
+        eleves.forEach((nom, idx) => {
+          const tenueVal = parseFloat(
+            tbodyTenue.querySelectorAll(".totalTenue")[idx].textContent
+          ) || 0;
+          const attVal = parseFloat(
+            tbodyAtt.querySelectorAll(".totalAttitude")[idx].textContent
+          ) || 0;
+
+          const tr = tbodyRecap.querySelectorAll("tr")[idx];
+          const tdTenue = tr.querySelector(".recapTenue");
+          const tdAtt = tr.querySelector(".recapAttitude");
+          const tdFinal = tr.querySelector(".totalFinal");
+
+          tdTenue.textContent = tenueVal < 0 ? tenueVal.toFixed(1) : "0.0";
+          tdAtt.textContent = attVal > 0 ? "+" + attVal.toFixed(1) : attVal.toFixed(1);
+
+          const somme = attVal + tenueVal; // tenue déjà négatif si malus
+
+          if (somme > 0) {
+            tdFinal.textContent = "+" + somme.toFixed(1);
+            tdFinal.style.color = "#28a745";
+          } else if (somme < 0) {
+            tdFinal.textContent = somme.toFixed(1);
+            tdFinal.style.color = "#dc3545";
+          } else {
+            tdFinal.textContent = "0.0";
+            tdFinal.style.color = "black";
+          }
+        });
+      }
+
+      // --- SAUVEGARDE ---
+      function saveData() {
+        const data = {tenue: [], attitude: []};
+
+        tbodyTenue.querySelectorAll("tr").forEach((tr, i) => {
+          const vals = Array.from(tr.querySelectorAll("select")).map(s => s.value);
+          data.tenue.push(vals);
+        });
+
+        tbodyAtt.querySelectorAll("tr").forEach((tr, i) => {
+          const vals = Array.from(tr.querySelectorAll("select")).map(s => s.value);
+          data.attitude.push(vals);
+        });
+
+        localStorage.setItem("epsData", JSON.stringify(data));
+      }
+
+      function loadData() {
+        const data = JSON.parse(localStorage.getItem("epsData"));
+        if (!data) return;
+
+        tbodyTenue.querySelectorAll("tr").forEach((tr, i) => {
+          const vals = data.tenue[i];
+          tr.querySelectorAll("select").forEach((s, j) => {
+            s.value = vals[j];
+          });
+          calculerTenue(tr);
+        });
+
+        tbodyAtt.querySelectorAll("tr").forEach((tr, i) => {
+          const vals = data.attitude[i];
+          tr.querySelectorAll("select").forEach((s, j) => {
+            s.value = vals[j];
+          });
+          calculerAttitude(tr);
+        });
+
+        calculerRecap();
+      }
+
+      loadData();
+
+      window.resetAll = function() {
+        tbodyTenue.querySelectorAll("select").forEach(sel => sel.value = "oui");
+        tbodyAtt.querySelectorAll("select").forEach(sel => sel.value = "neutre");
+        tbodyTenue.querySelectorAll("tr").forEach(tr => calculerTenue(tr));
+        tbodyAtt.querySelectorAll("tr").forEach(tr => calculerAttitude(tr));
+        calculerRecap();
+        saveData();
+      }
     });
   </script>
-
 </body>
 </html>
-
